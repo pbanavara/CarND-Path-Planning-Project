@@ -1,0 +1,12 @@
+Building the model:
+
+I have followed the project walkthrough video and built the model along the same guidelines, using Spline as the primary technique for building smooth trajectories.
+
+What has been difficult to achieve is detecting cars in the surrounding lanes. Since the sensor_fusion 2 dimensional vector lists cars on the primary index, it takes multiple loops to determine which of those cars are in the surrounding lanes. So not very efficient, for every lane change you have to check the position of all the cars (worst case). I will be trying to use some efficient data structures to achieve this.
+
+Overall, the logic is pretty simple:
+
+Choose a lane
+Fit a polynomial to maintain your car in the centre of that lane.
+Check for all cars in a loop
+If any car is in your lane ahead of you, check it's speed and as soon as you get too close (speed > 30) switch lane
