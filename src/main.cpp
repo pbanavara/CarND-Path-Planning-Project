@@ -203,7 +203,7 @@ int main() {
         map_waypoints_dy.push_back(d_y);
     }
     int lane = 1;
-    double ref_vel = 49.5;
+    double ref_vel = 0;
 
     h.onMessage([&ref_vel, &map_waypoints_x,&map_waypoints_y,&map_waypoints_s,&map_waypoints_dx,&map_waypoints_dy, &lane](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
     uWS::OpCode opCode) {
@@ -239,7 +239,6 @@ int main() {
 
                     int prev_size = previous_path_x.size();
                     //std::cout << prev_size << "\n";
-                    /*
                     if(prev_size > 2)
                     {
                         car_s = end_path_s;
@@ -249,17 +248,20 @@ int main() {
                     for (int i=0;i<sensor_fusion.size();++i)
                     {
                         float d = sensor_fusion[i][6];
-                        if(d< (2+4*1+2) && d > (2+4*1-2))
+                        if(d< (2+4*lane+2) && d > (2+4*lane-2))
                         {
                             double vx = sensor_fusion[i][3];
                             double vy = sensor_fusion[i][4];
                             double check_speed = sqrt(vx*vx + vy*vy);
-                            //std::cout << check_speed << "\n";
                             double check_car_s = sensor_fusion[i][5];
                             check_car_s += ((double)prev_size*0.02*check_speed);
                             if((check_car_s > car_s) && ((check_car_s - car_s) < 30))
                             {
                                 too_close = true;
+								if (lane > 0) 
+								{
+									lane = 0;
+								}
                             }
                         }
                     }
@@ -272,7 +274,6 @@ int main() {
                     {
                         ref_vel += 0.224;
                     }
-                    */
                     json msgJson;
                     vector<double> ptsx;
                     vector<double> ptsy;
@@ -319,13 +320,12 @@ int main() {
                         double shift_x = ptsx[i] - ref_x;
                         double shift_y = ptsy[i] - ref_y;
                         ptsx[i] = (shift_x * cos(0 - ref_yaw) - shift_y * sin(0 - ref_yaw));
-                        ptsy[i] = (shift_y * sin(0 - ref_yaw) + shift_y * cos(0 - ref_yaw));
+                        ptsy[i] = (shift_x * sin(0 - ref_yaw) + shift_y * cos(0 - ref_yaw));
                     }
                     tk::spline s;
                     s.set_points(ptsx, ptsy);
                     vector<double> next_x_vals;
                     vector<double> next_y_vals;
-                    // TODO: define a path made up of (x,y) points that the car will visit sequentially every .02 seconds
 
                     for (int i =0; i< previous_path_x.size(); i++)
                     {
